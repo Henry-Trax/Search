@@ -1,23 +1,24 @@
+import datetime
 import os
 import threading
 
 
-def print_function(repo):
-    while repo["thread_count"] > 0:
-        if len(repo["prints"]) > 0:
-            print(repo["prints"].pop())
-
-
 def verification(search, repo):
-    while repo["thread_count"] > 0:
-        file = repo["verification"].pop()
-        repo["prints"].append(file)
-        if search in file:
-            input()
+    while repo["verification_on"] == 1:
+        if len(repo["verification"]) > 0:
+            file = repo["verification"].pop()
+            print(file)
+            if search in file:
+                repo["results"].append(search)
+
+                if input("Enter To Continue, x to exit") == "x":
+                    repo["verification_on"] = 0
+                    repo["thread_on"] = 0
 
 
 def look_at_path(path, repo):
-    repository["thread_count"] += 1
+    if "thread_on" == 0:
+        return
 
     try:
         items_at_path = os.listdir(path)
@@ -33,16 +34,26 @@ def look_at_path(path, repo):
         th.start()
         repo["threads"].append(th)
 
-    repository["thread_count"] -= 1
 
-
-if __name__ == "__main__":
-    directory = "A:\\"
+def main():
+    directory = input("Location (C:\\ to search drive): ")
     search_conditions = input("Search:")
 
-    repository = {"threads": [], "prints": [], "verification": [], "thread_count": 0}
+    repository = {"threads": [], "verification": [], "thread_on": 1, "verification_on": 1, "results": []}
 
     look_at_path(path=directory, repo=repository)
 
-    threading.Thread(target=print_function, args=[repository]).start()
-    threading.Thread(target=print_function, args=[search_conditions, repository]).start()
+    threading.Thread(target=verification, args=[search_conditions, repository]).start()
+
+    while len(repository["threads"]) > 0:
+        repository["threads"].pop().join()
+
+    repository["verification_on"] = 0
+    for item in repository["results"]:
+        print(item)
+
+
+if __name__ == "__main__":
+    now = datetime.datetime.now()
+    main()
+    print(datetime.datetime.now() - now)
