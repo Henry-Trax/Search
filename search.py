@@ -12,8 +12,8 @@ def verification(search, repo):
                 repo["results"].append(search)
 
                 if input("Enter To Continue, x to exit") == "x":
-                    repo["verification_on"] = 0
                     repo["thread_on"] = 0
+                    return
 
 
 def look_at_path(path, repo):
@@ -28,30 +28,32 @@ def look_at_path(path, repo):
         repo["verification"].append(path)
         return
 
+    threads = []
+
     for item in items_at_path:
         new_path = f"{path}\\{item}"
         th = threading.Thread(target=look_at_path, args=[new_path, repo])
         th.start()
-        repo["threads"].append(th)
+        threads.append(th)
+
+    for thread in threads:
+        thread.join()
 
 
 def main():
-    directory = input("Location (C:\\ to search drive): ")
-    search_conditions = input("Search:")
+    # directory = input("Location (C:\\ to search drive): ")
+    # search_conditions = input("Search:")
+    directory = "A:\\"
+    search_conditions = "LICENSE"
 
-    repository = {"threads": [], "verification": [], "thread_on": 1, "verification_on": 1, "results": []}
+    repository = {"verification": [], "thread_on": 1, "verification_on": 1, "results": []}
 
     look_at_path(path=directory, repo=repository)
 
-    threading.Thread(target=verification, args=[search_conditions, repository]).start()
-
-    while len(repository["threads"]) > 0:
-        repository["threads"].pop().join()
-
+    thread = threading.Thread(target=verification, args=[search_conditions, repository])
+    thread.start()
+    thread.join()
     repository["verification_on"] = 0
-    for item in repository["results"]:
-        print(item)
-
 
 if __name__ == "__main__":
     now = datetime.datetime.now()
