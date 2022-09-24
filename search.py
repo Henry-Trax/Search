@@ -4,14 +4,14 @@ import threading
 
 
 def verification(search, repo):
-    while repo["verification_on"] == 1:
-        if len(repo["verification"]) > 0:
+    while len(repo["threads"]) > 0:
+        while len(repo["verification"]) > 0:
             file = repo["verification"].pop()
             print(file)
             if search in file:
-                repo["results"].append(search)
+                repo["results"].append(file)
 
-                if input("Enter To Continue, x to exit") == "x":
+                if repo["wait".lower()] == "y" and input("Enter To Continue, x to exit") == "x":
                     repo["thread_on"] = 0
                     return
 
@@ -34,6 +34,7 @@ def look_at_path(path, repo):
         new_path = f"{path}\\{item}"
         th = threading.Thread(target=look_at_path, args=[new_path, repo])
         th.start()
+        repo["threads"].append(th)
         threads.append(th)
 
     for thread in threads:
@@ -41,21 +42,29 @@ def look_at_path(path, repo):
 
 
 def main():
-    # directory = input("Location (C:\\ to search drive): ")
-    # search_conditions = input("Search:")
-    directory = "A:\\"
-    search_conditions = "LICENSE"
+    directory = input("Location (C:\\\\ to search drive): ")
+    wait = input("pause on result:")
+    search_conditions = input("Search:")
+    # directory = "A:\\"
+    # search_conditions = "LICENSE"
 
-    repository = {"verification": [], "thread_on": 1, "verification_on": 1, "results": []}
+    repository = {"verification": [], "thread_on": 1, "threads": [], "results": [], "wait": wait}
 
-    look_at_path(path=directory, repo=repository)
+    thread = threading.Thread(target=look_at_path, args=[directory, repository])
+    ver = threading.Thread(target=verification, args=[search_conditions, repository])
 
-    thread = threading.Thread(target=verification, args=[search_conditions, repository])
+    repository["threads"].append(thread)
+
     thread.start()
+    ver.start()
+
     thread.join()
-    repository["verification_on"] = 0
+    ver.join()
+
+    for item in repository["results"]:
+        print(item)
+
 
 if __name__ == "__main__":
-    now = datetime.datetime.now()
     main()
-    print(datetime.datetime.now() - now)
+    print("over")
