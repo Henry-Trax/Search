@@ -4,11 +4,15 @@ import threading
 
 
 def verification(search, repo):
-    while len(repo["threads"]) > 0:
-        while len(repo["verification"]) > 0:
+    while repo["ver"] == 1:
+        if len(repo["verification"]) > 0:
             file = repo["verification"].pop()
             print(file)
-            if search in file:
+
+            if repo["cap_safe"] != "y" and search.lower() in file.lower():
+                repo["results"].append(file)
+
+            elif search in file:
                 repo["results"].append(file)
 
                 if repo["wait".lower()] == "y" and input("Enter To Continue, x to exit") == "x":
@@ -23,6 +27,7 @@ def look_at_path(path, repo):
     try:
         items_at_path = os.listdir(path)
     except PermissionError:
+        repo["verification"].append(f"Perm Error {path}")
         return
     except NotADirectoryError:
         repo["verification"].append(path)
@@ -34,7 +39,6 @@ def look_at_path(path, repo):
         new_path = f"{path}\\{item}"
         th = threading.Thread(target=look_at_path, args=[new_path, repo])
         th.start()
-        repo["threads"].append(th)
         threads.append(th)
 
     for thread in threads:
@@ -42,24 +46,25 @@ def look_at_path(path, repo):
 
 
 def main():
-    directory = input("Location (C:\\\\ to search drive): ")
-    wait = input("pause on result:")
-    search_conditions = input("Search:")
+    directory = input("Location (C: to search drive):")
+    wait = input("pause on result (y / n)      :")
+    cap_safe = input("caps sensitive  (y / n)      :")
+    search_conditions = input("Search                       :")
     # directory = "A:\\"
     # search_conditions = "LICENSE"
 
-    repository = {"verification": [], "thread_on": 1, "threads": [], "results": [], "wait": wait}
+    repository = {"verification": [], "thread_on": 1, "results": [], "wait": wait, "ver": 1, "cap_safe": cap_safe}
 
     thread = threading.Thread(target=look_at_path, args=[directory, repository])
     ver = threading.Thread(target=verification, args=[search_conditions, repository])
-
-    repository["threads"].append(thread)
 
     thread.start()
     ver.start()
 
     thread.join()
-    ver.join()
+    repository["ver"] = 0
+
+    os.system('cls' if os.name == 'nt' else 'clear')
 
     for item in repository["results"]:
         print(item)
