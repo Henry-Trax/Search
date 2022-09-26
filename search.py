@@ -52,6 +52,7 @@ def main():
     search_conditions = input("Search                       :")
     # directory = "A:\\"
     # search_conditions = "LICENSE"
+    now = datetime.datetime.now()
 
     repository = {"verification": [], "thread_on": 1, "results": [], "wait": wait, "ver": 1, "cap_safe": cap_safe}
 
@@ -69,8 +70,8 @@ def main():
     for item in repository["results"]:
         print(item)
 
+    print(datetime.datetime.now() - now)
+
 
 if __name__ == "__main__":
-    now = datetime.datetime.now()
     main()
-    print(datetime.datetime.now() - now)
