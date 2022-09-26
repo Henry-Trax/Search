@@ -67,11 +67,13 @@ def main():
 
     os.system('cls' if os.name == 'nt' else 'clear')
 
+    print(datetime.datetime.now() - now)
+
     for item in repository["results"]:
         print(item)
 
-    print(datetime.datetime.now() - now)
 
 
 if __name__ == "__main__":
-    main()
+    while True:
+        main()
