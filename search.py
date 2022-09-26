@@ -71,5 +71,6 @@ def main():
 
 
 if __name__ == "__main__":
+    now = datetime.datetime.now()
     main()
-    print("over")
+    print(datetime.datetime.now() - now)
