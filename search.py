@@ -46,7 +46,7 @@ def look_at_path(path, repo):
 
 
 def main():
-    directory = input("Location (C: to search drive):")
+    directory = input("Location (C:\\ to search drive):")
     wait = input("pause on result (y / n)      :")
     cap_safe = input("caps sensitive  (y / n)      :")
     search_conditions = input("Search                       :")
